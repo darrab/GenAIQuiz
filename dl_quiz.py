@@ -1,1 +1,1336 @@
 
+import sys
+import time
+import random
+
+# ==============================================================================
+# QUESTION DATABASE (200 Questions)
+# ==============================================================================
+QUESTIONS = [
+    # --- LECTURE 01: Review of Essentials (Q1-34) ---
+    {
+        "id": 1, "lecture": 1,
+        "q": "In a regression model, what is the dependent variable?",
+        "opts": ["A) The variable that explains changes", "B) The variable to be explained", "C) The error term", "D) The intercept"],
+        "ans": "B", "exp": "The dependent variable is the one whose variation is to be explained by independent variables."
+    },
+    {
+        "id": 2, "lecture": 1,
+        "q": "What does β₁ represent in the linear regression equation y = β₀ + β₁x + ε?",
+        "opts": ["A) The y-intercept", "B) The error term", "C) The slope of the line", "D) The predicted value"],
+        "ans": "C", "exp": "β₁ represents the slope, indicating how much y changes for a unit change in x."
+    },
+    {
+        "id": 3, "lecture": 1,
+        "q": "Which method is commonly used to estimate regression parameters?",
+        "opts": ["A) Maximum likelihood", "B) Least squares", "C) Random search", "D) Grid search"],
+        "ans": "B", "exp": "Least squares minimizes the sum of squared errors between predicted and actual values."
+    },
+    {
+        "id": 4, "lecture": 1,
+        "q": "What does the error term (ε) represent in regression?",
+        "opts": ["A) The slope", "B) The intercept", "C) Unexplained/random variation", "D) The predicted value"],
+        "ans": "C", "exp": "The error term captures random variation not explained by the model."
+    },
+    {
+        "id": 5, "lecture": 1,
+        "q": "In the office rentals dataset example, what was the independent variable?",
+        "opts": ["A) Rental Price", "B) Floor number", "C) Size", "D) Energy Rate"],
+        "ans": "C", "exp": "Size was used as the independent variable to predict rental price."
+    },
+    {
+        "id": 6, "lecture": 1,
+        "q": "What is 'y-hat' (ŷ) in regression notation?",
+        "opts": ["A) Actual value", "B) Predicted value", "C) Error value", "D) Weight value"],
+        "ans": "B", "exp": "ŷ represents the predicted values of the dependent variable."
+    },
+    {
+        "id": 7, "lecture": 1,
+        "q": "How many parameters does simple linear regression estimate?",
+        "opts": ["A) One", "B) Two", "C) Three", "D) Four"],
+        "ans": "B", "exp": "Two parameters: slope (β₁) and intercept (β₀)."
+    },
+    {
+        "id": 8, "lecture": 1,
+        "q": "What is the purpose of the error function in model training?",
+        "opts": ["A) To initialize weights", "B) To judge model performance", "C) To select features", "D) To normalize data"],
+        "ans": "B", "exp": "The error function evaluates how well the model performs on training data."
+    },
+    {
+        "id": 9, "lecture": 1,
+        "q": "What does the error surface represent?",
+        "opts": ["A) Data distribution", "B) Error values for all weight combinations", "C) Training examples", "D) Model architecture"],
+        "ans": "B", "exp": "The error surface shows error values for every possible combination of weights."
+    },
+    {
+        "id": 10, "lecture": 1,
+        "q": "What is the goal of gradient descent?",
+        "opts": ["A) Maximize the error", "B) Find the highest point on error surface", "C) Find the lowest point on error surface", "D) Randomize weights"],
+        "ans": "C", "exp": "Gradient descent finds the minimum error point on the error surface."
+    },
+    {
+        "id": 11, "lecture": 1,
+        "q": "What does the learning rate (α) control in gradient descent?",
+        "opts": ["A) Number of iterations", "B) How quickly the algorithm converges", "C) Number of features", "D) Model complexity"],
+        "ans": "B", "exp": "Learning rate controls the step size and convergence speed."
+    },
+    {
+        "id": 12, "lecture": 1,
+        "q": "What happens if the learning rate is too large?",
+        "opts": ["A) Convergence is too slow", "B) May overshoot the minimum", "C) No effect on training", "D) Model becomes too simple"],
+        "ans": "B", "exp": "A large learning rate can cause the algorithm to overshoot the minimum."
+    },
+    {
+        "id": 13, "lecture": 1,
+        "q": "In multivariate regression, what is the dummy feature d[0] typically set to?",
+        "opts": ["A) 0", "B) 1", "C) -1", "D) Random value"],
+        "ans": "B", "exp": "The dummy feature is always set to 1 to represent the intercept term."
+    },
+    {
+        "id": 14, "lecture": 1,
+        "q": "What is the L2 loss function also known as?",
+        "opts": ["A) Mean Absolute Error", "B) Sum of Squared Errors", "C) Cross-Entropy", "D) Hinge Loss"],
+        "ans": "B", "exp": "L2 loss is the Sum of Squared Errors."
+    },
+    {
+        "id": 16, "lecture": 1,
+        "q": "What is the main difference between linear and logistic regression?",
+        "opts": ["A) Number of parameters", "B) Target variable type", "C) Training algorithm", "D) Error function only"],
+        "ans": "B", "exp": "Logistic regression handles binary targets, linear handles continuous."
+    },
+    {
+        "id": 17, "lecture": 1,
+        "q": "What function does logistic regression use?",
+        "opts": ["A) Linear function", "B) Step function", "C) Sigmoid/Logistic function", "D) ReLU function"],
+        "ans": "C", "exp": "Logistic regression uses the sigmoid function for binary classification."
+    },
+    {
+        "id": 18, "lecture": 1,
+        "q": "Why is a step function problematic for learning?",
+        "opts": ["A) Too complex", "B) Non-differentiable", "C) Too simple", "D) Requires too much data"],
+        "ans": "B", "exp": "Step functions are non-differentiable, making gradient-based optimization impossible."
+    },
+    {
+        "id": 19, "lecture": 1,
+        "q": "What is the range of the sigmoid function?",
+        "opts": ["A) [-1, 1]", "B) [0, ∞]", "C) [0, 1]", "D) [-∞, ∞]"],
+        "ans": "C", "exp": "Sigmoid outputs values between 0 and 1."
+    },
+    {
+        "id": 20, "lecture": 1,
+        "q": "What loss function is used for logistic regression?",
+        "opts": ["A) Sum of Squared Errors", "B) Cross-Entropy Loss", "C) Hinge Loss", "D) Mean Absolute Error"],
+        "ans": "B", "exp": "Cross-Entropy Loss is appropriate for binary classification."
+    },
+    {
+        "id": 21, "lecture": 1,
+        "q": "What is the big idea behind parameterized prediction models?",
+        "opts": ["A) Use fixed parameters", "B) Initialize randomly and iteratively adjust", "C) Use pre-trained values only", "D) Avoid error functions"],
+        "ans": "B", "exp": "Models start with random parameters and iteratively adjust based on error."
+    },
+    {
+        "id": 22, "lecture": 1,
+        "q": "In the error surface plot, what does the x-y plane represent?",
+        "opts": ["A) Data space", "B) Weight space", "C) Output space", "D) Error space"],
+        "ans": "B", "exp": "The x-y plane represents the weight space."
+    },
+    {
+        "id": 23, "lecture": 1,
+        "q": "What is the convergence criterion in gradient descent?",
+        "opts": ["A) Fixed number of iterations only", "B) When error stops decreasing significantly", "C) When weights become zero", "D) When learning rate becomes zero"],
+        "ans": "B", "exp": "Convergence occurs when error reduction becomes negligible."
+    },
+    {
+        "id": 24, "lecture": 1,
+        "q": "What does the partial derivative of L2 with respect to weights give?",
+        "opts": ["A) The error value", "B) The gradient of error surface", "C) The predicted output", "D) The learning rate"],
+        "ans": "B", "exp": "Partial derivatives give the gradient direction for weight updates."
+    },
+    {
+        "id": 25, "lecture": 1,
+        "q": "For multiple training instances, how is the gradient calculated?",
+        "opts": ["A) Use one instance only", "B) Sum over all instances", "C) Average of random instances", "D) Ignore instances"],
+        "ans": "B", "exp": "The gradient sums contributions from all training instances."
+    },
+    {
+        "id": 26, "lecture": 1,
+        "q": "What type of problem is multinomial logistic regression for?",
+        "opts": ["A) Binary classification", "B) Multi-class classification", "C) Regression", "D) Clustering"],
+        "ans": "B", "exp": "Multinomial logistic regression handles multiple classes."
+    },
+    {
+        "id": 27, "lecture": 1,
+        "q": "What does the contour plot of error surface show?",
+        "opts": ["A) Data distribution", "B) Lines of equal error", "C) Weight values", "D) Learning rate"],
+        "ans": "B", "exp": "Contour plots show lines connecting points of equal error."
+    },
+    {
+        "id": 28, "lecture": 1,
+        "q": "In gradient descent, what direction do we move weights?",
+        "opts": ["A) Up the slope", "B) Down the slope", "C) Random direction", "D) Perpendicular to slope"],
+        "ans": "B", "exp": "We move down the slope to minimize error."
+    },
+    {
+        "id": 39, "lecture": 1,
+        "q": "What is the formula for weight update in gradient descent?",
+        "opts": ["A) w = w - α × gradient", "B) w = w + α × gradient", "C) w = w × α", "D) w = α / gradient"],
+        "ans": "B", "exp": "Weights are updated by adding learning rate times the error delta."
+    },
+    {
+        "id": 30, "lecture": 1,
+        "q": "Why normalize input signals for sigmoid activation?",
+        "opts": ["A) To speed up computation", "B) To avoid saturation at high/low ends", "C) To reduce memory", "D) To increase accuracy"],
+        "ans": "B", "exp": "Sigmoid saturates at extremes, normalization helps avoid this."
+    },
+    {
+        "id": 31, "lecture": 1,
+        "q": "What does bivariate regression mean?",
+        "opts": ["A) Two dependent variables", "B) Two independent variables", "C) One independent and one dependent variable", "D) Two error terms"],
+        "ans": "C", "exp": "Bivariate means one independent and one dependent variable."
+    },
+    {
+        "id": 32, "lecture": 1,
+        "q": "What is the purpose of the random error component?",
+        "opts": ["A) To make model complex", "B) To capture unexplained variation", "C) To increase predictions", "D) To reduce training time"],
+        "ans": "B", "exp": "Random error captures variation not explained by the model."
+    },
+
+    # --- LECTURE 02: Neural Networks - A (Q35-67) ---
+    {
+        "id": 33, "lecture": 2,
+        "q": "What is a 'black box' model?",
+        "opts": ["A) Easy to interpret", "B) Makes great predictions but hard to explain", "C) Uses simple rules", "D) Requires no training"],
+        "ans": "B", "exp": "Black box models like neural networks make good predictions but are hard to interpret."
+    },
+    {
+        "id": 34, "lecture": 2,
+        "q": "Which is an example of a white box model?",
+        "opts": ["A) Neural Networks", "B) Random Forests", "C) Decision Trees", "D) Deep Learning"],
+        "ans": "C", "exp": "Decision Trees are interpretable and considered white box models."
+    },
+    {
+        "id": 35, "lecture": 2,
+        "q": "What critical ingredient enabled recent deep learning successes?",
+        "opts": ["A) Smaller models", "B) Larger quantities of data", "C) Less parameters", "D) Manual feature engineering"],
+        "ans": "B", "exp": "Large datasets were crucial for deep learning success."
+    },
+    {
+        "id": 38, "lecture": 2,
+        "q": "How many general approaches to machine learning are described?",
+        "opts": ["A) Two", "B) Three", "C) Four", "D) Five"],
+        "ans": "B", "exp": "Classical ML, Representation Learning, and Deep Learning."
+    },
+    {
+        "id": 39, "lecture": 2,
+        "q": "What is deep learning a form of?",
+        "opts": ["A) Classical machine learning", "B) Representation learning", "C) Unsupervised learning", "D) Reinforcement learning"],
+        "ans": "B", "exp": "Deep learning is a form of representation learning with multiple transformation steps."
+    },
+    {
+        "id": 40, "lecture": 2,
+        "q": "What is associated with each input into a neuron?",
+        "opts": ["A) Bias only", "B) Weight", "C) Activation function", "D) Output value"],
+        "ans": "B", "exp": "Each input has an associated weight that gets adjusted during training."
+    },
+    {
+        "id": 41, "lecture": 2,
+        "q": "What type of number is a weight?",
+        "opts": ["A) Integer", "B) Floating point", "C) Binary", "D) Complex"],
+        "ans": "B", "exp": "Weights are floating point numbers."
+    },
+    {
+        "id": 42, "lecture": 2,
+        "q": "When was the perceptron developed?",
+        "opts": ["A) 1930s-1940s", "B) 1950s-1960s", "C) 1970s-1980s", "D) 1990s-2000s"],
+        "ans": "B", "exp": "Perceptron was developed in the 1950s and 1960s."
+    },
+    {
+        "id": 43, "lecture": 2,
+        "q": "What type of output does a perceptron produce?",
+        "opts": ["A) Continuous", "B) Binary (0 or 1)", "C) Multi-class", "D) Probability distribution"],
+        "ans": "B", "exp": "Perceptron produces binary output based on threshold."
+    },
+    {
+        "id": 44, "lecture": 2,
+        "q": "In a feedforward network, how does information flow?",
+        "opts": ["A) Backwards only", "B) Both directions", "C) Forward only", "D) Randomly"],
+        "ans": "C", "exp": "Information flows forward from input to output in feedforward networks."
+    },
+    {
+        "id": 45, "lecture": 2,
+        "q": "How many inputs would a neural net need for an 8×8 light panel?",
+        "opts": ["A) 8", "B) 16", "C) 64", "D) 128"],
+        "ans": "C", "exp": "8×8 = 64 inputs, one for each cell."
+    },
+    {
+        "id": 46, "lecture": 2,
+        "q": "How are neural network weights typically initialized?",
+        "opts": ["A) All zeros", "B) All ones", "C) Random values", "D) Pre-trained values"],
+        "ans": "C", "exp": "Weights are initialized with random values before training."
+    },
+    {
+        "id": 47, "lecture": 2,
+        "q": "What does MLP stand for?",
+        "opts": ["A) Multi-Layer Perceptron", "B) Maximum Likelihood Perceptron", "C) Multi-Path Learning", "D) Matrix Linear Processing"],
+        "ans": "A", "exp": "MLP = Multi-Layer Perceptron."
+    },
+    {
+        "id": 48, "lecture": 2,
+        "q": "How many layers does a three-layer network have (by weight layer convention)?",
+        "opts": ["A) 2", "B) 3", "C) 4", "D) 5"],
+        "ans": "B", "exp": "Three layers of adaptive weights (input-hidden, hidden-hidden, hidden-output)."
+    },
+    {
+        "id": 49, "lecture": 2,
+        "q": "What is the bias in a perceptron equivalent to?",
+        "opts": ["A) Weight", "B) Negative threshold", "C) Input", "D) Output"],
+        "ans": "B", "exp": "Bias b ≡ -threshold."
+    },
+    {
+        "id": 50, "lecture": 2,
+        "q": "What can a single perceptron learn?",
+        "opts": ["A) Any function", "B) Linearly separable functions only", "C) XOR function", "D) Non-convex boundaries"],
+        "ans": "B", "exp": "Single perceptron can only learn linearly separable functions."
+    },
+    {
+        "id": 51, "lecture": 2,
+        "q": "Which function CANNOT be implemented by a single layer perceptron?",
+        "opts": ["A) AND", "B) OR", "C) XOR", "D) NOT"],
+        "ans": "C", "exp": "XOR is not linearly separable."
+    },
+    {
+        "id": 52, "lecture": 2,
+        "q": "Who offered the solution to the XOR problem?",
+        "opts": ["A) LeCun", "B) Minsky & Papert", "C) Hinton", "D) Bengio"],
+        "ans": "B", "exp": "Minsky & Papert (1969) showed multi-layer solution for XOR."
+    },
+    {
+        "id": 53, "lecture": 2,
+        "q": "What does a 2nd layer in MLP do?",
+        "opts": ["A) Receives input", "B) Combines boundaries from 1st layer", "C) Produces final output only", "D) Normalizes data"],
+        "ans": "B", "exp": "Second layer combines linear boundaries from first layer."
+    },
+    {
+        "id": 54, "lecture": 2,
+        "q": "What can a 3rd layer generate?",
+        "opts": ["A) Linear boundaries only", "B) Convex boundaries only", "C) Arbitrarily complex boundaries", "D) No boundaries"],
+        "ans": "C", "exp": "Three layers can generate arbitrarily complex decision boundaries."
+    },
+    {
+        "id": 55, "lecture": 2,
+        "q": "What is the output of a sigmoid neuron?",
+        "opts": ["A) w·x + b", "B) σ(w·x + b)", "C) max(0, w·x + b)", "D) tanh(w·x + b)"],
+        "ans": "B", "exp": "Sigmoid neuron outputs σ(w·x + b)."
+    },
+    {
+        "id": 56, "lecture": 2,
+        "q": "What values can sigmoid neuron inputs have?",
+        "opts": ["A) Only 0 or 1", "B) Between 0 and 1", "C) Only integers", "D) Only positive"],
+        "ans": "B", "exp": "Sigmoid neurons can handle continuous inputs between 0 and 1."
+    },
+    {
+        "id": 57, "lecture": 2,
+        "q": "Why is sigmoid function smoothness important?",
+        "opts": ["A) Faster computation", "B) Small weight changes produce small output changes", "C) Reduces memory", "D) Increases accuracy"],
+        "ans": "B", "exp": "Smoothness ensures gradual output changes for gradual weight changes."
+    },
+    {
+        "id": 58, "lecture": 2,
+        "q": "Which activation function has a steady state at 0?",
+        "opts": ["A) Sigmoid", "B) Hyperbolic tangent (tanh)", "C) ReLU", "D) Step function"],
+        "ans": "B", "exp": "Tanh ranges from -1 to +1 with steady state at 0."
+    },
+    {
+        "id": 59, "lecture": 2,
+        "q": "What is ReLU short for?",
+        "opts": ["A) Recurrent Linear Unit", "B) Rectified Linear Unit", "C) Random Linear Unit", "D) Regularized Linear Unit"],
+        "ans": "B", "exp": "ReLU = Rectified Linear Unit."
+    },
+    {
+        "id": 60, "lecture": 2,
+        "q": "What advantage does ReLU provide?",
+        "opts": ["A) Dense activations", "B) Sparseness property", "C) Always positive output", "D) Complex gradient"],
+        "ans": "B", "exp": "ReLU produces sparse activations (many zeros)."
+    },
+    {
+        "id": 61, "lecture": 2,
+        "q": "What is the gradient of ReLU?",
+        "opts": ["A) Always 0", "B) Always 1", "C) Either 0 or 1", "D) Variable"],
+        "ans": "C", "exp": "ReLU gradient is 0 for negative input, 1 for positive."
+    },
+    {
+        "id": 62, "lecture": 2,
+        "q": "Who developed the Backpropagation algorithm (published 1986)?",
+        "opts": ["A) LeCun, Bengio, Hinton", "B) Rumelhart, Hinton, Williams", "C) Minsky, Papert", "D) Goodfellow, Pouget-Abadie"],
+        "ans": "B", "exp": "Rumelhart, Hinton, and Williams published BP in 1986."
+    },
+    {
+        "id": 63, "lecture": 2,
+        "q": "What are the two phases of backpropagation?",
+        "opts": ["A) Training and Testing", "B) Forward pass and Backward pass", "C) Initialization and Update", "D) Encoding and Decoding"],
+        "ans": "B", "exp": "Forward pass computes outputs, backward pass propagates errors."
+    },
+    {
+        "id": 64, "lecture": 2,
+        "q": "What does the forward pass compute?",
+        "opts": ["A) Error signal", "B) Functional signal", "C) Weight updates", "D) Gradient"],
+        "ans": "B", "exp": "Forward pass computes the functional signal (outputs)."
+    },
+    {
+        "id": 65, "lecture": 2,
+        "q": "What does the backward pass compute?",
+        "opts": ["A) Output values", "B) Error signal", "C) Input values", "D) Activation values"],
+        "ans": "B", "exp": "Backward pass computes and propagates the error signal."
+    },
+    {
+        "id": 66, "lecture": 2,
+        "q": "What is one epoch in neural network training?",
+        "opts": ["A) One weight update", "B) One complete presentation of training set", "C) One layer update", "D) One iteration"],
+        "ans": "B", "exp": "One epoch = one complete pass through the entire training set."
+    },
+    {
+        "id": 67, "lecture": 2,
+        "q": "What is the Generalized Delta Rule also known as?",
+        "opts": ["A) Forward Propagation", "B) Back Propagation algorithm", "C) Gradient Descent", "D) Weight Initialization"],
+        "ans": "B", "exp": "Generalized Delta Rule = Back Propagation algorithm."
+    },
+
+    # --- LECTURE 03: Neural Networks - B (Q68-100) ---
+    {
+        "id": 68, "lecture": 3,
+        "q": "What type of method are ANNs typically?",
+        "opts": ["A) Unsupervised white box", "B) Supervised black box", "C) Unsupervised black box", "D) Supervised white box"],
+        "ans": "B", "exp": "ANNs are supervised black box methods."
+    },
+    {
+        "id": 69, "lecture": 3,
+        "q": "Which is NOT a typical ANN application?",
+        "opts": ["A) Time series analysis", "B) Signal processing", "C) Database management", "D) Classification"],
+        "ans": "C", "exp": "Database management is not a typical ANN application."
+    },
+    {
+        "id": 70, "lecture": 3,
+        "q": "What are ANNs composed of?",
+        "opts": ["A) Decision trees", "B) Layers of artificial neurons", "C) Support vectors", "D) Clusters"],
+        "ans": "B", "exp": "ANNs are composed of layers of artificial neurons/perceptrons."
+    },
+    {
+        "id": 71, "lecture": 3,
+        "q": "What differentiates ANNs from perceptrons in SVM context?",
+        "opts": ["A) Number of layers", "B) Presence of activation function", "C) Training data", "D) Output type"],
+        "ans": "B", "exp": "Activation function is the key difference."
+    },
+    {
+        "id": 72, "lecture": 3,
+        "q": "What does an activation function do?",
+        "opts": ["A) Initializes weights", "B) Transforms net input to output signal", "C) Calculates error", "D) Selects features"],
+        "ans": "B", "exp": "Activation function transforms neuron's net input into output signal."
+    },
+    {
+        "id": 73, "lecture": 3,
+        "q": "What is network topology?",
+        "opts": ["A) Training algorithm", "B) Architecture describing neurons and layers", "C) Error function", "D) Data preprocessing"],
+        "ans": "B", "exp": "Topology describes number of neurons, layers, and interconnections."
+    },
+    {
+        "id": 74, "lecture": 3,
+        "q": "What type of graph is an ANN?",
+        "opts": ["A) Undirected graph", "B) Directed acyclic graph", "C) Cyclic graph only", "D) Random graph"],
+        "ans": "B", "exp": "Feedforward ANNs are directed acyclic graphs."
+    },
+    {
+        "id": 75, "lecture": 3,
+        "q": "What is NOT a main layer type in ANN?",
+        "opts": ["A) Input layer", "B) Output layer", "C) Processing layer", "D) Hidden layer"],
+        "ans": "C", "exp": "The three main layers are input, hidden, and output."
+    },
+    {
+        "id": 76, "lecture": 3,
+        "q": "What defines a single layer network?",
+        "opts": ["A) Only input layer", "B) Input and output layers", "C) Only hidden layer", "D) Input, hidden, and output"],
+        "ans": "B", "exp": "Single layer network has only input and output (no hidden)."
+    },
+    {
+        "id": 77, "lecture": 3,
+        "q": "What defines a 'deep learner'?",
+        "opts": ["A) One hidden layer", "B) More than one hidden layer", "C) No hidden layers", "D) Only output layer"],
+        "ans": "B", "exp": "Deep learners have more than one hidden layer."
+    },
+    {
+        "id": 78, "lecture": 3,
+        "q": "What can a two-layer feedforward network with step activation implement?",
+        "opts": ["A) Any continuous function", "B) Any Boolean function", "C) Only linear functions", "D) Only XOR"],
+        "ans": "B", "exp": "Two-layer network with step activation can implement any Boolean function."
+    },
+    {
+        "id": 79, "lecture": 3,
+        "q": "What is the universality property of MLP?",
+        "opts": ["A) Works on any hardware", "B) Can approximate any continuous decision boundary", "C) Trains very fast", "D) Requires no data"],
+        "ans": "B", "exp": "2-layer MLP with sigmoid can approximate any continuous decision boundary."
+    },
+    {
+        "id": 80, "lecture": 3,
+        "q": "What is the standard form of ANN?",
+        "opts": ["A) Recurrent network", "B) Feedforward network", "C) Random network", "D) Fully connected only"],
+        "ans": "B", "exp": "Feedforward network is the standard form."
+    },
+    {
+        "id": 81, "lecture": 3,
+        "q": "What do recurrent networks allow?",
+        "opts": ["A) Forward signals only", "B) Signals in both directions with loops", "C) No hidden layers", "D) Binary outputs only"],
+        "ans": "B", "exp": "Recurrent networks allow feedback loops for sequential data."
+    },
+    {
+        "id": 82, "lecture": 3,
+        "q": "What is best practice for network size?",
+        "opts": ["A) Use maximum nodes possible", "B) Use fewest nodes with adequate performance", "C) Always use 3 hidden layers", "D) Match input size exactly"],
+        "ans": "B", "exp": "Use minimum nodes needed for adequate performance."
+    },
+    {
+        "id": 83, "lecture": 3,
+        "q": "How many hidden layers are suggested as sufficient for most problems?",
+        "opts": ["A) Zero", "B) One", "C) Three", "D) Ten"],
+        "ans": "B", "exp": "Single hidden layer with sufficient neurons works for most problems."
+    },
+    {
+        "id": 84, "lecture": 3,
+        "q": "What were two issues with perceptron training?",
+        "opts": ["A) Too fast, too accurate", "B) No convergence if not linearly separable, no quality notion", "C) Too many parameters", "D) Cannot handle binary data"],
+        "ans": "B", "exp": "Perceptron doesn't converge for non-linearly separable data."
+    },
+    {
+        "id": 85, "lecture": 3,
+        "q": "What rule converges towards best-fit approximation?",
+        "opts": ["A) Perceptron Rule", "B) Delta Rule", "C) XOR Rule", "D) Step Rule"],
+        "ans": "B", "exp": "Delta Rule finds best-fit approximation for non-separable data."
+    },
+    {
+        "id": 86, "lecture": 3,
+        "q": "What is the basis of the Delta Rule?",
+        "opts": ["A) Random search", "B) Gradient Descent", "C) Grid search", "D) Genetic algorithms"],
+        "ans": "B", "exp": "Delta Rule is based on Gradient Descent."
+    },
+    {
+        "id": 87, "lecture": 3,
+        "q": "What is removed from perceptron for Delta Rule?",
+        "opts": ["A) Weights", "B) Threshold", "C) Inputs", "D) Bias"],
+        "ans": "B", "exp": "Threshold is removed for unthresholded perceptron."
+    },
+    {
+        "id": 88, "lecture": 3,
+        "q": "What is the common error function for ANN training?",
+        "opts": ["A) Mean Absolute Error", "B) Half sum of squared errors", "C) Cross-Entropy", "D) Hinge Loss"],
+        "ans": "B", "exp": "E(w) = ½Σ(y_d - o_d)² is commonly used."
+    },
+    {
+        "id": 89, "lecture": 3,
+        "q": "Why is the ½ factor included in the error function?",
+        "opts": ["A) To reduce error", "B) For convenient mathematical property (derivative)", "C) To normalize", "D) No reason"],
+        "ans": "B", "exp": "The ½ simplifies the derivative calculation."
+    },
+    {
+        "id": 90, "lecture": 3,
+        "q": "What does ∇E(w) represent?",
+        "opts": ["A) Error value", "B) Gradient of error function", "C) Weight vector", "D) Learning rate"],
+        "ans": "B", "exp": "∇E(w) is the gradient (vector of partial derivatives)."
+    },
+    {
+        "id": 91, "lecture": 3,
+        "q": "What is the gradient descent update rule?",
+        "opts": ["A) w ← w + η∇E(w)", "B) w ← w - η∇E(w)", "C) w ← w × η", "D) w ← η / ∇E(w)"],
+        "ans": "B", "exp": "Weights move opposite to gradient direction (minus sign)."
+    },
+    {
+        "id": 92, "lecture": 3,
+        "q": "What problem occurs with too large learning rate?",
+        "opts": ["A) Too slow convergence", "B) Overstepping the minimum", "C) No convergence guarantee", "D) Local minima only"],
+        "ans": "B", "exp": "Large learning rate can overshoot the minimum."
+    },
+    {
+        "id": 93, "lecture": 3,
+        "q": "What is incremental gradient descent also called?",
+        "opts": ["A) Batch gradient descent", "B) Stochastic gradient descent", "C) Full gradient descent", "D) Parallel gradient descent"],
+        "ans": "B", "exp": "Incremental = Stochastic Gradient Descent (SGD)."
+    },
+    {
+        "id": 94, "lecture": 3,
+        "q": "What's the main difference between batch and SGD?",
+        "opts": ["A) Number of layers", "B) When weights are updated", "C) Activation function", "D) Error function"],
+        "ans": "B", "exp": "Batch updates after all examples, SGD after each example."
+    },
+    {
+        "id": 95, "lecture": 3,
+        "q": "What advantage does SGD have with local minima?",
+        "opts": ["A) Always finds global minimum", "B) Can sometimes avoid local minima", "C) No advantage", "D) Creates more local minima"],
+        "ans": "B", "exp": "SGD's noisy updates can help escape local minima."
+    },
+    {
+        "id": 96, "lecture": 3,
+        "q": "What does backpropagation allow?",
+        "opts": ["A) Linear decision surfaces only", "B) Rich variety of non-linear decision surfaces", "C) No hidden layers", "D) Binary outputs only"],
+        "ans": "B", "exp": "Backprop enables training networks with non-linear decision boundaries."
+    },
+    {
+        "id": 97, "lecture": 3,
+        "q": "What property makes sigmoid favorable for backprop?",
+        "opts": ["A) Linear and non-differentiable", "B) Non-linear and differentiable", "C) Binary and discrete", "D) Random and variable"],
+        "ans": "B", "exp": "Sigmoid is both non-linear and differentiable."
+    },
+    {
+        "id": 98, "lecture": 3,
+        "q": "What is the derivative of sigmoid σ(x)?",
+        "opts": ["A) σ(x)", "B) σ(x)(1 - σ(x))", "C) 1 - σ(x)", "D) e^(-x)"],
+        "ans": "B", "exp": "dσ/dx = σ(x)(1 - σ(x))."
+    },
+    {
+        "id": 99, "lecture": 3,
+        "q": "What does the error term δ represent in backprop?",
+        "opts": ["A) Learning rate", "B) Error contribution of a unit", "C) Weight value", "D) Input value"],
+        "ans": "B", "exp": "δ captures error contribution similar to (y-o) in Delta Rule."
+    },
+    {
+        "id": 100, "lecture": 3,
+        "q": "How is validation data used in ANN training?",
+        "opts": ["A) To update weights", "B) To compute error without training", "C) To initialize weights", "D) To select architecture only"],
+        "ans": "B", "exp": "Validation data computes error for monitoring, not weight updates."
+    },
+
+    # --- LECTURE 04: CNNs (Q101-134) ---
+    {
+        "id": 101, "lecture": 4,
+        "q": "What are CNNs particularly successful for?",
+        "opts": ["A) Text classification", "B) Image analysis", "C) Time series only", "D) Tabular data"],
+        "ans": "B", "exp": "CNNs have proven extremely successful for image analysis."
+    },
+    {
+        "id": 102, "lecture": 4,
+        "q": "How many weights for 256×256 RGB image fully connected to 128 neurons?",
+        "opts": ["A) 256,000", "B) 1 million", "C) 25 million", "D) 100 million"],
+        "ans": "C", "exp": "256×256×3×128 ≈ 25 million weights."
+    },
+    {
+        "id": 103, "lecture": 4,
+        "q": "What is Problem 1 with fully connected layers for images?",
+        "opts": ["A) Too few parameters", "B) Computational explosion", "C) Too simple", "D) No activation functions"],
+        "ans": "B", "exp": "Fully connected layers have too many parameters (computational explosion)."
+    },
+    {
+        "id": 104, "lecture": 4,
+        "q": "What property do interesting things in images usually have?",
+        "opts": ["A) Position dependent", "B) Translation invariant", "C) Color dependent", "D) Size dependent only"],
+        "ans": "B", "exp": "Objects are translation invariant (can appear anywhere)."
+    },
+    {
+        "id": 105, "lecture": 4,
+        "q": "What do early CNN layers focus on?",
+        "opts": ["A) Global features", "B) Local features", "C) Output classification", "D) Final predictions"],
+        "ans": "B", "exp": "Early layers focus on local features, global features come later."
+    },
+    {
+        "id": 106, "lecture": 4,
+        "q": "What can edges be thought of as in CNNs?",
+        "opts": ["A) Noise", "B) Useful spatially organized features", "C) Errors", "D) Outputs"],
+        "ans": "B", "exp": "Edges are useful spatially organized features."
+    },
+    {
+        "id": 107, "lecture": 4,
+        "q": "How is a filter implemented in CNN?",
+        "opts": ["A) Full image multiplication", "B) Small spatial zone × weights + activation", "C) Random sampling", "D) Average pooling only"],
+        "ans": "B", "exp": "Filter multiplies small spatial zone by weights, feeds to activation."
+    },
+    {
+        "id": 108, "lecture": 4,
+        "q": "Why can filtering be implemented using convolution?",
+        "opts": ["A) Same weights repeated around image", "B) Different weights for each position", "C) Random weights", "D) No weights needed"],
+        "ans": "A", "exp": "Same weights repeated = convolution operation."
+    },
+    {
+        "id": 109, "lecture": 4,
+        "q": "What algorithm is used to learn CNN filters?",
+        "opts": ["A) K-means", "B) SGD and backpropagation", "C) Decision trees", "D) Random forest"],
+        "ans": "B", "exp": "CNNs use SGD and backpropagation for learning."
+    },
+    {
+        "id": 110, "lecture": 4,
+        "q": "What is aggregation in CNNs also called?",
+        "opts": ["A) Convolution", "B) Pooling", "C) Activation", "D) Normalization"],
+        "ans": "B", "exp": "Aggregation across spatial regions = pooling."
+    },
+    {
+        "id": 111, "lecture": 4,
+        "q": "What does pooling provide?",
+        "opts": ["A) More parameters", "B) Invariance to small position differences", "C) Less accuracy", "D) Slower training"],
+        "ans": "B", "exp": "Pooling gives invariance to exact feature location."
+    },
+    {
+        "id": 112, "lecture": 4,
+        "q": "With max pooling, when is a feature activated?",
+        "opts": ["A) Only if detected everywhere", "B) If detected anywhere in pooling zone", "C) Never", "D) Only at edges"],
+        "ans": "B", "exp": "Max pooling activates if feature detected anywhere in zone."
+    },
+    {
+        "id": 113, "lecture": 4,
+        "q": "What is the typical CNN architecture flow?",
+        "opts": ["A) MLP → Conv → Pool → Output", "B) Conv → Pool → Conv → Pool → MLP", "C) Pool → Conv → MLP → Conv", "D) Output → Conv → Pool → Input"],
+        "ans": "B", "exp": "Conv and Pool layers repeat, ending with MLP for classification."
+    },
+    {
+        "id": 114, "lecture": 4,
+        "q": "Which are canonical CNN models?",
+        "opts": ["A) SVM and KNN", "B) LeNet and AlexNet", "C) Random Forest and XGBoost", "D) LSTM and GRU"],
+        "ans": "B", "exp": "LeNet and AlexNet are canonical CNN architectures."
+    },
+    {
+        "id": 115, "lecture": 4,
+        "q": "What technique increases CNN performance significantly?",
+        "opts": ["A) Reducing data", "B) Data augmentation (e.g., cropping trick)", "C) Removing layers", "D) Using CPU only"],
+        "ans": "B", "exp": "Data augmentation through transformations increases performance."
+    },
+    {
+        "id": 116, "lecture": 4,
+        "q": "What computing hardware is typically essential for CNNs?",
+        "opts": ["A) CPU only", "B) GPU", "C) TPU only", "D) FPGA only"],
+        "ans": "B", "exp": "GPU computing is typically essential for CNN acceleration."
+    },
+    {
+        "id": 117, "lecture": 4,
+        "q": "What was the ImageNet 2012 classification task?",
+        "opts": ["A) 100 categories", "B) 500 categories", "C) 1000 categories", "D) 10000 categories"],
+        "ans": "C", "exp": "ImageNet ILSVRC had 1000 object categories."
+    },
+    {
+        "id": 118, "lecture": 4,
+        "q": "How many training images in ImageNet?",
+        "opts": ["A) 100,000", "B) 500,000", "C) 1.2 million", "D) 10 million"],
+        "ans": "C", "exp": "ImageNet has 1.2 million training images."
+    },
+    {
+        "id": 119, "lecture": 4,
+        "q": "What is 'Top-5 error'?",
+        "opts": ["A) % of correct predictions", "B) % where target not in top 5 predictions", "C) Number of wrong classes", "D) Training error rate"],
+        "ans": "B", "exp": "Top-5 error = % where true label not among top 5 predictions."
+    },
+    {
+        "id": 120, "lecture": 4,
+        "q": "What plateau did non-CNN methods hit on ImageNet?",
+        "opts": ["A) 10% Top-5 error", "B) 25% Top-5 error", "C) 50% Top-5 error", "D) 5% Top-5 error"],
+        "ans": "B", "exp": "Non-CNN methods plateaued at ~25% Top-5 error."
+    },
+    {
+        "id": 121, "lecture": 4,
+        "q": "What is human performance on ImageNet (Top-5 error)?",
+        "opts": ["A) 1.0%", "B) 5.1%", "C) 10.0%", "D) 25.0%"],
+        "ans": "B", "exp": "Human agreement measured at 5.1% Top-5 error."
+    },
+    {
+        "id": 122, "lecture": 4,
+        "q": "What filter size leads to superior results in deep networks?",
+        "opts": ["A) 11×11", "B) 7×7", "C) 5×5", "D) 3×3"],
+        "ans": "D", "exp": "Smaller 3×3 filters found to lead to superior results."
+    },
+    {
+        "id": 123, "lecture": 4,
+        "q": "What is the output size formula for convolution?",
+        "opts": ["A) (n - f + 1)", "B) (n + 2p - f + 1)", "C) (n + p - f)", "D) (n × f)"],
+        "ans": "B", "exp": "Output = (n + 2p - f + 1) where p = padding."
+    },
+    {
+        "id": 124, "lecture": 4,
+        "q": "What are Sobel filters used for?",
+        "opts": ["A) Color detection", "B) Edge detection", "C) Object classification", "D) Pooling"],
+        "ans": "B", "exp": "Sobel filters are well-known for edge detection."
+    },
+    {
+        "id": 125, "lecture": 4,
+        "q": "What do early CNN layers typically learn?",
+        "opts": ["A) Complete objects", "B) Edge-like and texture-like filters", "C) Class labels", "D) Output predictions"],
+        "ans": "B", "exp": "Early layers learn edge-like and texture-like filters."
+    },
+    {
+        "id": 126, "lecture": 4,
+        "q": "What happens to receptive fields as you move up CNN layers?",
+        "opts": ["A) Stay the same", "B) Become smaller", "C) Become larger", "D) Disappear"],
+        "ans": "C", "exp": "Receptive fields become larger in higher layers."
+    },
+    {
+        "id": 127, "lecture": 4,
+        "q": "What do higher-level CNN layers detect?",
+        "opts": ["A) Simple edges only", "B) Larger features, textures, object pieces", "C) Raw pixels", "D) Noise"],
+        "ans": "B", "exp": "Higher layers detect larger features and object parts."
+    },
+    {
+        "id": 128, "lecture": 4,
+        "q": "In max pooling 2×2, how many values become one?",
+        "opts": ["A) 2", "B) 4", "C) 8", "D) 16"],
+        "ans": "B", "exp": "2×2 max pooling takes 4 values and outputs 1 (the maximum)."
+    },
+    {
+        "id": 129, "lecture": 4,
+        "q": "What happens during decimation?",
+        "opts": ["A) Resolution increases", "B) Resolution decreases", "C) No change", "D) Colors change"],
+        "ans": "B", "exp": "Decimation reduces resolution (subsampling)."
+    },
+    {
+        "id": 130, "lecture": 4,
+        "q": "In backprop through max pooling, which units get the gradient?",
+        "opts": ["A) All units equally", "B) The 'winning units' (maximum)", "C) No units", "D) Random units"],
+        "ans": "B", "exp": "Only the units that produced the maximum get the gradient."
+    },
+    {
+        "id": 131, "lecture": 4,
+        "q": "What is average pooling mathematically?",
+        "opts": ["A) Special convolution with fixed kernel", "B) Max operation", "C) Random sampling", "D) No operation"],
+        "ans": "A", "exp": "Average pooling is convolution with fixed averaging kernel."
+    },
+    {
+        "id": 132, "lecture": 4,
+        "q": "How much can GPUs accelerate convolutions vs CPU?",
+        "opts": ["A) 2×", "B) 5×", "C) 10× or more", "D) No acceleration"],
+        "ans": "C", "exp": "GPUs can accelerate convolutions by an order of magnitude or more."
+    },
+    {
+        "id": 133, "lecture": 4,
+        "q": "What architecture uses residual layers?",
+        "opts": ["A) LeNet", "B) AlexNet", "C) ResNet", "D) VGG"],
+        "ans": "C", "exp": "ResNet uses residual (skip) connections."
+    },
+    {
+        "id": 134, "lecture": 4,
+        "q": "What does Inception architecture use?",
+        "opts": ["A) Single filter size", "B) Multi-scale feature extraction", "C) No pooling", "D) Only fully connected layers"],
+        "ans": "B", "exp": "Inception uses multiple filter sizes for multi-scale features."
+    },
+
+    # --- LECTURE 05: Representation & Transfer Learning (Q135-167) ---
+    {
+        "id": 135, "lecture": 5,
+        "q": "What is the basic question about media representation?",
+        "opts": ["A) How to store media", "B) How to represent media for neural network processing", "C) How to compress media", "D) How to display media"],
+        "ans": "B", "exp": "Key question is how to represent media for NN processing."
+    },
+    {
+        "id": 136, "lecture": 5,
+        "q": "What do ASCII and UTF8 capture?",
+        "opts": ["A) Semantic meaning", "B) Literal text", "C) Word relationships", "D) Context"],
+        "ans": "B", "exp": "ASCII/UTF8 capture literal text, not information-centric representation."
+    },
+    {
+        "id": 137, "lecture": 5,
+        "q": "What is a problem with Bag of Words?",
+        "opts": ["A) Too short vectors", "B) Order of words lost", "C) Too semantic", "D) Too dense"],
+        "ans": "B", "exp": "Bag of Words loses word order information."
+    },
+    {
+        "id": 138, "lecture": 5,
+        "q": "What is a problem with One-Hot Encoding?",
+        "opts": ["A) Too dense", "B) Sparsity and no semantic meaning", "C) Too short", "D) Captures order"],
+        "ans": "B", "exp": "One-hot encoding is sparse and lacks semantic meaning."
+    },
+    {
+        "id": 139, "lecture": 5,
+        "q": "What is the solution to capture word similarity?",
+        "opts": ["A) One-hot encoding", "B) Distributed embeddings", "C) Bag of words", "D) ASCII"],
+        "ans": "B", "exp": "Distributed embeddings capture semantic similarity."
+    },
+    {
+        "id": 140, "lecture": 5,
+        "q": "In distributed representations, what dimension is typical?",
+        "opts": ["A) 3", "B) 10", "C) 128 or higher", "D) 1000"],
+        "ans": "C", "exp": "Embeddings use high dimensions like 128+."
+    },
+    {
+        "id": 141, "lecture": 5,
+        "q": "How are word embeddings learned?",
+        "opts": ["A) Manually assigned", "B) Through standard learning (lookup tables)", "C) Random initialization only", "D) Fixed values"],
+        "ans": "B", "exp": "Embeddings are learned through standard training methods."
+    },
+    {
+        "id": 142, "lecture": 5,
+        "q": "What is Word2Vec?",
+        "opts": ["A) A text editor", "B) A method for learning word embeddings", "C) A CNN architecture", "D) A database"],
+        "ans": "B", "exp": "Word2Vec is a popular method for learning word embeddings."
+    },
+    {
+        "id": 143, "lecture": 5,
+        "q": "What can autoencoders be used for?",
+        "opts": ["A) Only image classification", "B) Learning embeddings", "C) Only text generation", "D) Database queries"],
+        "ans": "B", "exp": "Autoencoders can learn distributed representations/embeddings."
+    },
+    {
+        "id": 144, "lecture": 5,
+        "q": "What does Keras allow for embeddings?",
+        "opts": ["A) Only pre-trained", "B) Training lookup table embeddings easily", "C) No embedding support", "D) Only one-hot encoding"],
+        "ans": "B", "exp": "Keras allows easy training of embedding lookup tables."
+    },
+    {
+        "id": 145, "lecture": 5,
+        "q": "What is a con of on-the-fly embeddings?",
+        "opts": ["A) Too general", "B) Cluster words based on training task only", "C) Too large", "D) Too slow"],
+        "ans": "B", "exp": "On-the-fly embeddings cluster based on specific task, not general semantics."
+    },
+    {
+        "id": 146, "lecture": 5,
+        "q": "What is generally available for major embedding architectures?",
+        "opts": ["A) No pre-trained options", "B) Pre-trained embeddings", "C) Only random embeddings", "D) Fixed embeddings"],
+        "ans": "B", "exp": "Pre-trained embeddings are available for major architectures."
+    },
+    {
+        "id": 147, "lecture": 5,
+        "q": "How can embeddings be used with CNNs?",
+        "opts": ["A) Not possible", "B) 1D convolutions through embeddings", "C) Only 2D convolutions", "D) Only pooling"],
+        "ans": "B", "exp": "1D convolutions can be applied through word embeddings."
+    },
+    {
+        "id": 148, "lecture": 5,
+        "q": "What is transfer learning?",
+        "opts": ["A) Transferring data between systems", "B) Using model from one task for another task", "C) Copying weights randomly", "D) Training from scratch"],
+        "ans": "B", "exp": "Transfer learning uses a model trained on one task for another."
+    },
+    {
+        "id": 149, "lecture": 5,
+        "q": "In transfer learning, what is typically done to the original network?",
+        "opts": ["A) Use entire network as-is", "B) Split off top layer(s) as head", "C) Remove all layers", "D) Double all layers"],
+        "ans": "B", "exp": "Top layer(s) are split off as task-specific head."
+    },
+    {
+        "id": 150, "lecture": 5,
+        "q": "What does 'freeze' mean in transfer learning?",
+        "opts": ["A) Delete weights", "B) Don't let weights change during training", "C) Double the weights", "D) Randomize weights"],
+        "ans": "B", "exp": "Freezing means keeping weights fixed during new training."
+    },
+    {
+        "id": 151, "lecture": 5,
+        "q": "What is 'fine-tuning'?",
+        "opts": ["A) Deleting layers", "B) Allowing imported weights to change", "C) Freezing all weights", "D) Training from scratch"],
+        "ans": "B", "exp": "Fine-tuning allows pre-trained weights to update with new data."
+    },
+    {
+        "id": 152, "lecture": 5,
+        "q": "Which layers are assumed more application-specific?",
+        "opts": ["A) Early layers", "B) Middle layers", "C) Top/head layers", "D) All layers equally"],
+        "ans": "C", "exp": "Top/head layers are more task-specific."
+    },
+    {
+        "id": 153, "lecture": 5,
+        "q": "Which layers capture more general features?",
+        "opts": ["A) Top layers", "B) Early/lower layers", "C) Output layer only", "D) None"],
+        "ans": "B", "exp": "Early layers capture general features useful across tasks."
+    },
+    {
+        "id": 154, "lecture": 5,
+        "q": "When should you fine-tune vs freeze?",
+        "opts": ["A) Always freeze", "B) Depends on task similarity and data amount", "C) Always fine-tune", "D) Randomly decide"],
+        "ans": "B", "exp": "Decision depends on task similarity and available data."
+    },
+    {
+        "id": 155, "lecture": 5,
+        "q": "What is the benefit of pre-trained embeddings?",
+        "opts": ["A) Task-specific only", "B) General language understanding", "C) No benefit", "D) Slower training"],
+        "ans": "B", "exp": "Pre-trained embeddings capture general language semantics."
+    },
+    {
+        "id": 156, "lecture": 5,
+        "q": "What is a problem with Bag of Words vectors?",
+        "opts": ["A) Too short", "B) Vectors are long", "C) Too semantic", "D) Captures order"],
+        "ans": "B", "exp": "Bag of Words creates very long (high-dimensional) vectors."
+    },
+    {
+        "id": 157, "lecture": 5,
+        "q": "What does 'distributed' mean in distributed embeddings?",
+        "opts": ["A) Across multiple computers", "B) Meaning spread across vector dimensions", "C) Random distribution", "D) Distributed training only"],
+        "ans": "B", "exp": "Meaning is distributed across multiple vector dimensions."
+    },
+    {
+        "id": 158, "lecture": 5,
+        "q": "In meaning space, what should semantically similar words have?",
+        "opts": ["A) Very different vectors", "B) Similar vectors (close in space)", "C) Same vector exactly", "D) Random vectors"],
+        "ans": "B", "exp": "Similar words should have similar/close vectors."
+    },
+    {
+        "id": 159, "lecture": 5,
+        "q": "What is Option 1 for using embeddings?",
+        "opts": ["A) Pre-trained only", "B) Learning embeddings on the fly", "C) No embeddings", "D) Fixed embeddings"],
+        "ans": "B", "exp": "Option 1 is learning embeddings during task training."
+    },
+    {
+        "id": 160, "lecture": 5,
+        "q": "What is Option 2 for using embeddings?",
+        "opts": ["A) Random embeddings", "B) Use pre-trained embeddings", "C) No embeddings", "D) One-hot only"],
+        "ans": "B", "exp": "Option 2 is using pre-trained embeddings."
+    },
+    {
+        "id": 161, "lecture": 5,
+        "q": "What architecture is mentioned as more complex for embeddings?",
+        "opts": ["A) Simple lookup tables", "B) Transformers", "C) Decision trees", "D) Linear regression"],
+        "ans": "B", "exp": "Transformers are more complex architectures for learning embeddings."
+    },
+    {
+        "id": 162, "lecture": 5,
+        "q": "What is re-using embeddings beneficial for?",
+        "opts": ["A) Tasks with little data", "B) Tasks with infinite data", "C) No benefit", "D) Only image tasks"],
+        "ans": "A", "exp": "Re-use is especially beneficial when task data is limited."
+    },
+    {
+        "id": 163, "lecture": 5,
+        "q": "What happens to on-the-fly embeddings for words B and C that should be similar?",
+        "opts": ["A) Always similar", "B) May not capture semantic similarity", "C) Always identical", "D) No effect"],
+        "ans": "B", "exp": "On-the-fly may not capture general semantic similarity."
+    },
+    {
+        "id": 164, "lecture": 5,
+        "q": "What is knowledge transfer in transfer learning?",
+        "opts": ["A) Copying data", "B) Using learned representations from original model", "C) Random weight initialization", "D) Training separate models"],
+        "ans": "B", "exp": "Knowledge transfer uses learned representations from source task."
+    },
+    {
+        "id": 165, "lecture": 5,
+        "q": "What is typically large in transfer learning scenario?",
+        "opts": ["A) Application labels", "B) Original training data", "C) New network", "D) Test set only"],
+        "ans": "B", "exp": "Original task typically has large training data."
+    },
+    {
+        "id": 166, "lecture": 5,
+        "q": "What is the new network in transfer learning called?",
+        "opts": ["A) Original network", "B) Application network/model", "C) Training network", "D) Validation network"],
+        "ans": "B", "exp": "The target task uses the application network/model."
+    },
+    {
+        "id": 167, "lecture": 5,
+        "q": "What can become considerably more complex for embeddings?",
+        "opts": ["A) Simple lookup tables", "B) Architectures for learning embeddings", "C) Text input", "D) Output labels"],
+        "ans": "B", "exp": "Embedding architectures can become very complex (e.g., Transformers)."
+    },
+
+    # --- LECTURE 06: RNNs (Q168-200) ---
+    {
+        "id": 168, "lecture": 6,
+        "q": "What type of data are RNNs designed for?",
+        "opts": ["A) Independent samples", "B) Time series and sequential data", "C) Images only", "D) Tabular data only"],
+        "ans": "B", "exp": "RNNs are designed for sequential/time series data."
+    },
+    {
+        "id": 169, "lecture": 6,
+        "q": "Which is an example of sequential categorical data?",
+        "opts": ["A) Images", "B) Language/text", "C) Numbers", "D) Coordinates"],
+        "ans": "B", "exp": "Language is sequential categorical data."
+    },
+    {
+        "id": 170, "lecture": 6,
+        "q": "What is language modelling?",
+        "opts": ["A) Drawing language trees", "B) Building model of language's statistical properties", "C) Translating languages", "D) Counting words"],
+        "ans": "B", "exp": "Language modelling describes statistical properties of language."
+    },
+    {
+        "id": 171, "lecture": 6,
+        "q": "What can language models do?",
+        "opts": ["A) Only translate", "B) Predict next word and sentence probability", "C) Only count words", "D) Only classify"],
+        "ans": "B", "exp": "Language models predict next word and sentence probabilities."
+    },
+    {
+        "id": 172, "lecture": 6,
+        "q": "What connections do RNNs have?",
+        "opts": ["A) Only feedforward", "B) Connections forming directed cycles", "C) No connections", "D) Random connections"],
+        "ans": "B", "exp": "RNNs have connections forming directed cycles."
+    },
+    {
+        "id": 173, "lecture": 6,
+        "q": "What does having cycles give RNNs?",
+        "opts": ["A) No state", "B) Internal state", "C) Only output state", "D) Fixed state"],
+        "ans": "B", "exp": "Cycles give RNNs internal state for sequential processing."
+    },
+    {
+        "id": 174, "lecture": 6,
+        "q": "What are RNNs prime candidates for?",
+        "opts": ["A) Image classification", "B) Sequence learning problems", "C) Clustering", "D) Dimensionality reduction"],
+        "ans": "B", "exp": "RNNs excel at sequence learning (speech, translation, etc.)."
+    },
+    {
+        "id": 175, "lecture": 6,
+        "q": "How can a feedforward network become recurrent?",
+        "opts": ["A) Remove layers", "B) Add connections from hidden units to hidden units", "C) Add more inputs", "D) Remove outputs"],
+        "ans": "B", "exp": "Add connections from hidden units back to hidden units."
+    },
+    {
+        "id": 176, "lecture": 6,
+        "q": "What can each hidden unit in RNN connect to?",
+        "opts": ["A) Only itself", "B) Itself and other hidden units", "C) Only output", "D) Only input"],
+        "ans": "B", "exp": "Hidden units connect to themselves and other hidden units."
+    },
+    {
+        "id": 177, "lecture": 6,
+        "q": "What does 'unfolding' an RNN mean?",
+        "opts": ["A) Compressing the network", "B) Following sequence of computation steps over time", "C) Removing layers", "D) Adding more inputs"],
+        "ans": "B", "exp": "Unfolding shows the RNN across time steps."
+    },
+    {
+        "id": 178, "lecture": 6,
+        "q": "What is an unwrapped RNN similar to?",
+        "opts": ["A) CNN", "B) Hidden Markov Model", "C) Decision Tree", "D) K-Means"],
+        "ans": "B", "exp": "Unwrapped RNN is similar to Hidden Markov Model."
+    },
+    {
+        "id": 179, "lecture": 6,
+        "q": "What's different about RNN hidden units vs HMM?",
+        "opts": ["A) RNN units are stochastic", "B) RNN units are not stochastic", "C) No difference", "D) HMM has more units"],
+        "ans": "B", "exp": "RNN hidden units are deterministic, not stochastic like HMM."
+    },
+    {
+        "id": 180, "lecture": 6,
+        "q": "What is used at each time step in RNN?",
+        "opts": ["A) Different weights", "B) Same weights and biases", "C) Random weights", "D) No weights"],
+        "ans": "B", "exp": "Same weights and biases are replicated at each time step."
+    },
+    {
+        "id": 181, "lecture": 6,
+        "q": "What is the RNN hidden state equation?",
+        "opts": ["A) h_t = Wx_t", "B) h_t = act(W_h x_t + U_h h_{t-1} + b_h)", "C) h_t = x_t + h_{t-1}", "D) h_t = W_o h_t"],
+        "ans": "B", "exp": "h_t = act(W_h x_t + U_h h_{t-1} + b_h)."
+    },
+    {
+        "id": 182, "lecture": 6,
+        "q": "What influences h_t computation?",
+        "opts": ["A) Only current input", "B) Current input and previous hidden state", "C) Only previous state", "D) Random values"],
+        "ans": "B", "exp": "h_t depends on current input x_t and previous state h_{t-1}."
+    },
+    {
+        "id": 183, "lecture": 6,
+        "q": "Where is the output layer computed from?",
+        "opts": ["A) Input directly", "B) Linear transformation of hidden units", "C) Previous output", "D) Random values"],
+        "ans": "B", "exp": "Output is computed from transformation of hidden units."
+    },
+    {
+        "id": 184, "lecture": 6,
+        "q": "When can loss be computed in RNN?",
+        "opts": ["A) Only at end of sequence", "B) At each time step or at end", "C) Only at beginning", "D) Never"],
+        "ans": "B", "exp": "Loss can be computed at each step or just at sequence end."
+    },
+    {
+        "id": 185, "lecture": 6,
+        "q": "What problem occurs over many processing steps?",
+        "opts": ["A) Too fast training", "B) Vanishing or exploding gradients", "C) No gradients", "D) Perfect gradients"],
+        "ans": "B", "exp": "Many steps cause vanishing or exploding gradient problems."
+    },
+    {
+        "id": 186, "lecture": 6,
+        "q": "Why do gradients vanish or explode in RNN?",
+        "opts": ["A) Different weights each step", "B) Same matrix used at each step (like powers)", "C) No activation functions", "D) Too many layers"],
+        "ans": "B", "exp": "Same matrix repeated is like taking a number to large power."
+    },
+    {
+        "id": 187, "lecture": 6,
+        "q": "What can mitigate exploding gradients?",
+        "opts": ["A) Larger learning rate", "B) L1 or L2 regularization", "C) More layers", "D) Less data"],
+        "ans": "B", "exp": "Regularization encourages smaller weights, mitigating explosion."
+    },
+    {
+        "id": 188, "lecture": 6,
+        "q": "What is gradient clipping?",
+        "opts": ["A) Removing gradients", "B) Scaling down gradients if norm exceeds threshold", "C) Doubling gradients", "D) Random gradients"],
+        "ans": "B", "exp": "Gradient clipping scales gradients when they exceed threshold."
+    },
+    {
+        "id": 189, "lecture": 6,
+        "q": "What is T in gradient clipping?",
+        "opts": ["A) Temperature", "B) Threshold hyperparameter", "C) Time step", "D) Training epoch"],
+        "ans": "B", "exp": "T is the threshold hyperparameter for clipping."
+    },
+    {
+        "id": 190, "lecture": 6,
+        "q": "What architecture was created to address vanishing gradients?",
+        "opts": ["A) CNN", "B) LSTM", "C) MLP", "D) Autoencoder"],
+        "ans": "B", "exp": "LSTM was specifically designed to address vanishing gradients."
+    },
+    {
+        "id": 191, "lecture": 6,
+        "q": "What does LSTM use to control memory?",
+        "opts": ["A) Single gate", "B) Gates controlling memory cells", "C) No gates", "D) Random connections"],
+        "ans": "B", "exp": "LSTM uses gates to control memory cells."
+    },
+    {
+        "id": 192, "lecture": 6,
+        "q": "What are memory cells designed to do?",
+        "opts": ["A) Forget everything", "B) Retain information without modification for long periods", "C) Store only recent info", "D) Compress information"],
+        "ans": "B", "exp": "Memory cells retain information for long periods."
+    },
+    {
+        "id": 193, "lecture": 6,
+        "q": "What gates does LSTM have?",
+        "opts": ["A) Only input gate", "B) Input, output, and forget gates", "C) Only output gate", "D) No gates"],
+        "ans": "B", "exp": "LSTM has input, output, and forget gates."
+    },
+    {
+        "id": 194, "lecture": 6,
+        "q": "What controls the gates in LSTM?",
+        "opts": ["A) Fixed values", "B) Learnable weights based on input and previous hidden state", "C) Random values", "D) User input"],
+        "ans": "B", "exp": "Gates are controlled by learnable weights."
+    },
+    {
+        "id": 195, "lecture": 6,
+        "q": "What does the sigmoid function do in LSTM gates?",
+        "opts": ["A) Outputs any value", "B) Forces values close to 0 or 1", "C) Always outputs 0.5", "D) Random output"],
+        "ans": "B", "exp": "Sigmoid forces gate values close to 0 (block) or 1 (pass)."
+    },
+    {
+        "id": 196, "lecture": 6,
+        "q": "What happens when sigmoid result multiplies another vector?",
+        "opts": ["A) Always zeros it", "B) Allows info to pass through or blocks it", "C) Doubles it", "D) No effect"],
+        "ans": "B", "exp": "Gate values control whether information passes or is blocked."
+    },
+    {
+        "id": 197, "lecture": 6,
+        "q": "What was added to original LSTM formulation later?",
+        "opts": ["A) Input gates", "B) Forget gates and peephole weights", "C) Output gates", "D) Memory cells"],
+        "ans": "B", "exp": "Forget gates and peephole weights were added later."
+    },
+    {
+        "id": 198, "lecture": 6,
+        "q": "What results has LSTM produced?",
+        "opts": ["A) Poor results", "B) State-of-the-art on wide variety of problems", "C) Only good for images", "D) Only good for text"],
+        "ans": "B", "exp": "LSTM has produced state-of-the-art results on many problems."
+    },
+    {
+        "id": 199, "lecture": 6,
+        "q": "Which is NOT an LSTM application mentioned?",
+        "opts": ["A) Neural Machine Translation", "B) Image Classification", "C) Chatbots", "D) Video Processing"],
+        "ans": "B", "exp": "Image classification is typically CNN, not primary LSTM application."
+    },
+    {
+        "id": 200, "lecture": 6,
+        "q": "What is ASR in LSTM applications?",
+        "opts": ["A) Automatic System Recognition", "B) Automatic Speech Recognition", "C) Audio Signal Routing", "D) Advanced Sound Recording"],
+        "ans": "B", "exp": "ASR = Automatic Speech Recognition."
+    }
+]
+
+# ==============================================================================
+# QUIZ ENGINE
+# ==============================================================================
+
+class QuizApp:
+    def __init__(self, questions):
+        self.all_questions = questions
+        self.score = 0
+        self.total_answered = 0
+        self.correct_answers = []
+        self.incorrect_answers = []
+
+    def clear_screen(self):
+        print("\n" * 2)
+
+    def print_header(self, title):
+        print("=" * 60)
+        print(f" {title} ".center(60, "="))
+        print("=" * 60)
+
+    def get_lecture_selection(self):
+        print("\nSelect Lecture(s) to Quiz:")
+        print("1. Lecture 01: Review of Essentials")
+        print("2. Lecture 02: Neural Networks - A")
+        print("3. Lecture 03: Neural Networks - B")
+        print("4. Lecture 04: CNNs")
+        print("5. Lecture 05: Representation & Transfer Learning")
+        print("6. Lecture 06: RNNs & LSTMs")
+        print("7. All Lectures (Full 200 Questions)")
+        
+        while True:
+            choice = input("\nEnter choice (1-7): ").strip()
+            if choice == '7':
+                return self.all_questions
+            elif choice in ['1', '2', '3', '4', '5', '6']:
+                lecture_id = int(choice)
+                return [q for q in self.all_questions if q['lecture'] == lecture_id]
+            else:
+                print("Invalid choice. Please enter 1-7.")
+
+    def run_quiz(self, questions):
+        if not questions:
+            print("No questions found for this selection.")
+            return
+
+        # Shuffle questions
+        random.shuffle(questions)
+        total_questions = len(questions)
+        
+        self.print_header(f"STARTING QUIZ ({total_questions} Questions)")
+        print("Type the letter (A, B, C, D) and press Enter.\n")
+        time.sleep(2)
+
+        for i, q in enumerate(questions, 1):
+            print(f"\n--- Question {i}/{total_questions} (Lecture {q['lecture']}) ---")
+            print(f"Q: {q['q']}")
+            for opt in q['opts']:
+                print(f"  {opt}")
+            
+            while True:
+                user_ans = input("\nYour Answer: ").strip().upper()
+                if user_ans in ['A', 'B', 'C', 'D']:
+                    break
+                print("Invalid input. Please enter A, B, C, or D.")
+
+            self.total_answered += 1
+            if user_ans == q['ans']:
+                self.score += 1
+                self.correct_answers.append(q['id'])
+                print("\n✅ Correct!")
+            else:
+                self.incorrect_answers.append(q['id'])
+                print(f"\n❌ Incorrect. The correct answer was {q['ans']}.")
+            
+            print(f"💡 Explanation: {q['exp']}")
+            print("-" * 60)
+            time.sleep(1.5) # Brief pause to read explanation
+
+        self.show_results()
+
+    def show_results(self):
+        self.clear_screen()
+        self.print_header("QUIZ RESULTS")
+        percentage = (self.score / self.total_answered) * 100 if self.total_answered > 0 else 0
+        
+        print(f"\nTotal Questions: {self.total_answered}")
+        print(f"Correct Answers: {self.score}")
+        print(f"Incorrect Answers: {self.total_answered - self.score}")
+        print(f"Score: {percentage:.2f}%")
+        
+        if percentage >= 80:
+            print("\n🎉 Excellent work! You have mastered this material.")
+        elif percentage >= 60:
+            print("\n👍 Good job! Review the incorrect topics to improve.")
+        else:
+            print("\n📚 Keep studying! Review the lectures and try again.")
+        
+        if self.incorrect_answers:
+            print(f"\n⚠️  Review Question IDs: {self.incorrect_answers}")
+        
+        print("\n" + "=" * 60)
+
+# ==============================================================================
+# MAIN ENTRY POINT
+# ==============================================================================
+
+def main():
+    print("\n🎓 Deep Learning & Gen AI Quiz Master 🎓")
+    print("Based on 6 Lectures (200 Questions)")
+    
+    app = QuizApp(QUESTIONS)
+    
+    while True:
+        selected_questions = app.get_lecture_selection()
+        app.score = 0
+        app.total_answered = 0
+        app.correct_answers = []
+        app.incorrect_answers = []
+        app.run_quiz(selected_questions)
+        
+        retry = input("\nWould you like to take another quiz? (y/n): ").strip().lower()
+        if retry != 'y':
+            print("\nThank you for studying! Good luck with your exams.\n")
+            break
+        app.clear_screen()
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\nQuiz terminated by user. Goodbye!")
+        sys.exit(0)
