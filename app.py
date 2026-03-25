@@ -743,30 +743,32 @@ else:
         
         st.markdown("---")
         
-        # Question Display
+      # Question Display
         st.markdown(f"### 📝 Question {st.session_state.current_question + 1}")
         st.markdown(f"**Lecture {q['lec']}**")
         st.markdown(f"**{q['q']}**")
         
-        # Options
-        options = {opt.split(')')[0]: opt for opt in q['opts']}
-        
         # Get current answer if exists
         current_answer = st.session_state.answers.get(st.session_state.current_question, {}).get('answer')
         
+        # Display options with full text
+        option_labels = q['opts']  # Full option text like "A) The variable..."
+        
         selected_option = st.radio(
             "Select your answer:",
-            list(options.keys()),
-            index=list(options.keys()).index(current_answer) if current_answer in options.keys() else None,
+            option_labels,
+            index=option_labels.index(current_answer) if current_answer in option_labels else None,
             key=f"q_{st.session_state.current_question}"
         )
         
-        # Save answer
+        # Save answer - extract just the letter (A, B, C, D)
         if selected_option:
+            selected_letter = selected_option.split(')')[0].strip()
             st.session_state.answers[st.session_state.current_question] = {
-                'answer': selected_option,
+                'answer': selected_letter,
                 'question': q['q'],
-                'correct_answer': q['ans']
+                'correct_answer': q['ans'],
+                'full_answer': selected_option
             }
         
         st.markdown("---")
