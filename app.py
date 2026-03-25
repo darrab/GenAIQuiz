@@ -799,15 +799,20 @@ else:
                 st.rerun()
         
         # Practice Mode Feedback
-        if st.session_state.quiz_mode == "practice" and selected_option:
-            st.markdown("---")
-            is_correct = selected_option == q['ans']
-            if is_correct:
-                st.success("✅ Correct!")
-            else:
-                st.error(f"❌ Incorrect. Correct answer: **{q['ans']}**")
+        if st.session_state.quiz_mode == "practice":
+            # Get answer from session state instead of radio button
+            answer_data = st.session_state.answers.get(st.session_state.current_question, {})
+            selected_letter = answer_data.get('answer')
             
-            st.info(f"💡 **Explanation:** {q['exp']}")
+            if selected_letter:
+                st.markdown("---")
+                is_correct = selected_letter == q['ans']
+                if is_correct:
+                    st.success("✅ Correct!")
+                else:
+                    st.error(f"❌ Incorrect. Correct answer: **{q['ans']}**")
+                
+                st.info(f"💡 **Explanation:** {q['exp']}")
         
         # Jump to Section
         st.markdown("---")
