@@ -753,7 +753,14 @@ else:
         
         # Display options with full text
         option_labels = q['opts']  # Full option text like "A) The variable..."
-        
+
+        current_index = None
+        if current_answer:
+            for idx, opt in enumerate(option_labels):
+                if opt.startswith(f"{current_answer})"):
+                    current_index = idx
+                    break
+
         selected_option = st.radio(
             "Select your answer:",
             option_labels,
@@ -808,11 +815,11 @@ else:
                 st.markdown("---")
                 is_correct = selected_letter == q['ans']
                 if is_correct:
-                    st.success("✅ Correct!")
+                    st.success(" Correct!")
                 else:
-                    st.error(f"❌ Incorrect. Correct answer: **{q['ans']}**")
+                    st.error(f" Incorrect. Correct answer: **{q['ans']}**")
                 
-                st.info(f"💡 **Explanation:** {q['exp']}")
+                st.info(f" **Explanation:** {q['exp']}")
         
         # Jump to Section
         st.markdown("---")
