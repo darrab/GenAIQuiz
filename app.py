@@ -219,10 +219,6 @@ def show_question():
 
         st.info(f"💡 {q['exp']}")
 
-    if st.session_state.mode == "Exam":
-    if st.session_state.current_q < len(st.session_state.selected_questions) - 1:
-        st.session_state.current_q += 1
-
     # ==========================
     # NAVIGATION
     # ==========================
