@@ -439,23 +439,32 @@ else:
         st.markdown(f"**Lecture {q['lec']}**")
         st.markdown(f"**{q['q']}**")
         
-        # Options
-        options = {opt.split(')')[0]: opt for opt in q['opts']}
-        
         # Get current answer if exists
         current_answer = st.session_state.answers.get(st.session_state.current_question, {}).get('answer')
         
+        # FIXED: Display full option text
+        options = q['opts']  # Just use the options list directly
+        
+        # Find the index of the current answer
+        current_index = None
+        if current_answer:
+            for i, opt in enumerate(options):
+                if opt.startswith(f"{current_answer})"):
+                    current_index = i
+                    break
+        
         selected_option = st.radio(
             "Select your answer:",
-            list(options.keys()),
-            index=list(options.keys()).index(current_answer) if current_answer in options.keys() else None,
+            options,  # ✅ Use full options list
+            index=current_index,
             key=f"q_{st.session_state.current_question}"
         )
         
-        # Save answer
+        # Save answer - extract just the letter
         if selected_option:
+            selected_letter = selected_option.split(')')[0].strip()
             st.session_state.answers[st.session_state.current_question] = {
-                'answer': selected_option,
+                'answer': selected_letter,
                 'question': q['q'],
                 'correct_answer': q['ans']
             }
