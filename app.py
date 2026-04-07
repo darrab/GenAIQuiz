@@ -752,31 +752,32 @@ else:
         # Get current answer if exists
         current_answer = st.session_state.answers.get(st.session_state.current_question, {}).get('answer')
         
-        # Display options with full text
-        option_labels = q['opts']  # Full option text like "A) The variable..."
+        # FIXED: Display full option text
+        option_labels = q['opts']
         
-        # Safely find the index to pre-select
-        default_idx = None
-        if current_answer:  # FIXED: was 'stored'
-            for i, opt in enumerate(option_labels):  # FIXED: was 'options'
+        # Find index of current answer
+        current_index = None
+        if current_answer:
+            for idx, opt in enumerate(option_labels):
                 if opt.startswith(f"{current_answer})"):
-                    default_idx = i
+                    current_index = idx
                     break
         
-        # Radio button with safe parameters
-        selected = st.radio(
+        selected_option = st.radio(
             "Select your answer:",
-            option_labels,  # FIXED: was 'options=options'
-            index=default_idx if default_idx is not None else 0,
-            key=f"q{st.session_state.current_question}"
+            option_labels,  # Full text like "A) The variable..."
+            index=current_index,
+            key=f"q_{st.session_state.current_question}"
         )
         
-        # Save answer
-        if selected:
-            letter = selected.split(')')[0].strip()
+        # Save answer - extract just the letter
+        if selected_option:
+            selected_letter = selected_option.split(')')[0].strip()
             st.session_state.answers[st.session_state.current_question] = {
-                'answer': letter,
-                'correct_answer': q['ans']
+                'answer': selected_letter,
+                'question': q['q'],
+                'correct_answer': q['ans'],
+                'full_answer': selected_option
             }
         
         st.markdown("---")
