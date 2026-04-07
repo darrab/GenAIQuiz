@@ -165,11 +165,19 @@ def handle_answer():
     q_idx = st.session_state.current_q
     key = f"q_{q_idx}"
 
-    # Prevent re-submission
+    # Prevent crash if key not ready yet
+    if key not in st.session_state:
+        return
+
+    #  Prevent double submission
     if q_idx in st.session_state.answers:
         return
 
-    selected_option = st.session_state[key]
+    selected_option = st.session_state.get(key)
+
+    if selected_option is None:
+        return
+
     selected_letter = selected_option[0]
 
     st.session_state.answers[q_idx] = selected_letter
@@ -193,6 +201,7 @@ def show_question():
         "Options",
         q["opts"],
         key=key,
+        index=None,  # 👈 IMPORTANT (no pre-selected option)
         on_change=handle_answer,
         disabled=disabled
     )
@@ -209,6 +218,10 @@ def show_question():
             st.error(f"❌ Correct Answer: {q['ans']}")
 
         st.info(f"💡 {q['exp']}")
+
+    if st.session_state.mode == "Exam":
+    if st.session_state.current_q < len(st.session_state.selected_questions) - 1:
+        st.session_state.current_q += 1
 
     # ==========================
     # NAVIGATION
