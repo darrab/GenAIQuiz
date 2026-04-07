@@ -430,15 +430,6 @@ def get_timer_color(time_left, total_time):
     elif time_left < total_time * 0.4:
         return "timer-warning"
     return ""
-    
-def get_option_index(options, answer_letter):
-    """Safely find the index of an option by its letter prefix"""
-    if not answer_letter:
-        return None
-    for i, opt in enumerate(options):
-        if opt.startswith(f"{answer_letter})"):
-            return i
-    return None
 
 
 def init_quiz(lecture_selection, time_limit_minutes, mode):
