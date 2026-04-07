@@ -162,28 +162,73 @@ def show_timer():
 # QUIZ UI
 # ==========================
 def show_question():
-    q = st.session_state.selected_questions[st.session_state.current_q]
+    q_index = st.session_state.current_q
+    q = st.session_state.selected_questions[q_index]
 
-    st.markdown(f"### Q{st.session_state.current_q+1}: {q['q']}")
+    # Initialize lock state
+    if "locked_questions" not in st.session_state:
+        st.session_state.locked_questions = {}
 
-    choice = st.radio("Options", q["opts"], key=f"q_{st.session_state.current_q}")
+    is_locked = st.session_state.locked_questions.get(q_index, False)
 
-    if st.button("Submit"):
-        selected = choice[0]
-        st.session_state.answers[st.session_state.current_q] = selected
+    st.markdown(f"### Q{q_index+1}: {q['q']}")
 
-        if selected == q["ans"]:
-            st.session_state.score += 1
+    # Disable radio if locked (Practice mode only)
+    disable_radio = is_locked and st.session_state.mode == "Practice"
 
-        if st.session_state.mode == "Practice":
+    choice = st.radio(
+        "Options",
+        q["opts"],
+        key=f"q_{q_index}",
+        disabled=disable_radio
+    )
+
+    col1, col2 = st.columns(2)
+
+    # ======================
+    # SUBMIT BUTTON
+    # ======================
+    if col1.button("Submit", key=f"submit_{q_index}"):
+
+        # Prevent double submission
+        if not is_locked:
+            selected = choice[0]
+            st.session_state.answers[q_index] = selected
+
             if selected == q["ans"]:
-                st.success("Correct")
-            else:
-                st.error(f"Correct: {q['ans']}")
-            st.info(q["exp"])
+                st.session_state.score += 1
 
-    if st.button("Next"):
-        if st.session_state.current_q < len(st.session_state.selected_questions)-1:
+            # LOCK QUESTION
+            st.session_state.locked_questions[q_index] = True
+
+        # ======================
+        # PRACTICE MODE FEEDBACK
+        # ======================
+        if st.session_state.mode == "Practice":
+            selected = st.session_state.answers.get(q_index)
+
+            if selected == q["ans"]:
+                st.success("✅ Correct")
+            else:
+                st.error(f"❌ Correct Answer: {q['ans']}")
+
+            st.info(f"💡 {q['exp']}")
+
+    # ======================
+    # NEXT BUTTON
+    # ======================
+    if col2.button("Next", key=f"next_{q_index}"):
+
+        # In EXAM mode → auto-save if not submitted
+        if st.session_state.mode == "Exam" and q_index not in st.session_state.answers:
+            selected = choice[0]
+            st.session_state.answers[q_index] = selected
+
+            if selected == q["ans"]:
+                st.session_state.score += 1
+
+        # Move next
+        if q_index < len(st.session_state.selected_questions) - 1:
             st.session_state.current_q += 1
         else:
             st.session_state.submitted = True
