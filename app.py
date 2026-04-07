@@ -753,7 +753,7 @@ else:
         
         st.markdown("---")
         
-      # Question Display
+        # Question Display - FIXED
         st.markdown(f"### 📝 Question {st.session_state.current_question + 1}")
         st.markdown(f"**Lecture {q['lec']}**")
         st.markdown(f"**{q['q']}**")
@@ -763,32 +763,30 @@ else:
         
         # Display options with full text
         option_labels = q['opts']  # Full option text like "A) The variable..."
-
-        current_index = None
-        if current_answer:
-            for idx, opt in enumerate(option_labels):
+        
+        # Safely find the index to pre-select
+        default_idx = None
+        if current_answer:  # FIXED: was 'stored'
+            for i, opt in enumerate(option_labels):  # FIXED: was 'options'
                 if opt.startswith(f"{current_answer})"):
-                    current_index = idx
+                    default_idx = i
                     break
-
+        
+        # Radio button with safe parameters
         selected = st.radio(
             "Select your answer:",
-            options,
-            index=default_index,
-            key=f"question_{st.session_state.current_question}_{len(st.session_state.answers)}"
+            option_labels,  # FIXED: was 'options=options'
+            index=default_idx if default_idx is not None else 0,
+            key=f"q{st.session_state.current_question}"
         )
         
-        # Save answer immediately when selection changes
+        # Save answer
         if selected:
-            answer_letter = selected.split(')')[0].strip()
-            # Only update if different from stored
-            if st.session_state.answers.get(st.session_state.current_question, {}).get('answer') != answer_letter:
-                st.session_state.answers[st.session_state.current_question] = {
-                    'answer': answer_letter,
-                    'question': q['q'],
-                    'correct_answer': q['ans']
-                }
-                st.rerun() 
+            letter = selected.split(')')[0].strip()
+            st.session_state.answers[st.session_state.current_question] = {
+                'answer': letter,
+                'correct_answer': q['ans']
+            }
         
         st.markdown("---")
         
