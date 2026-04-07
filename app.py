@@ -761,22 +761,24 @@ else:
                     current_index = idx
                     break
 
-        selected_option = st.radio(
+        selected = st.radio(
             "Select your answer:",
-            option_labels,
-            index=option_labels.index(current_answer) if current_answer in option_labels else None,
-            key=f"q_{st.session_state.current_question}"
+            options,
+            index=default_index,
+            key=f"question_{st.session_state.current_question}_{len(st.session_state.answers)}"
         )
         
-        # Save answer - extract just the letter (A, B, C, D)
-        if selected_option:
-            selected_letter = selected_option.split(')')[0].strip()
-            st.session_state.answers[st.session_state.current_question] = {
-                'answer': selected_letter,
-                'question': q['q'],
-                'correct_answer': q['ans'],
-                'full_answer': selected_option
-            }
+        # Save answer immediately when selection changes
+        if selected:
+            answer_letter = selected.split(')')[0].strip()
+            # Only update if different from stored
+            if st.session_state.answers.get(st.session_state.current_question, {}).get('answer') != answer_letter:
+                st.session_state.answers[st.session_state.current_question] = {
+                    'answer': answer_letter,
+                    'question': q['q'],
+                    'correct_answer': q['ans']
+                }
+                st.rerun() 
         
         st.markdown("---")
         
