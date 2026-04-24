@@ -166,7 +166,7 @@ with st.sidebar:
     st.markdown("---")
     
     # Lecture Selection
-    lecture_options = ["All"] + [f"Lecture {i:02d}" for i in range(1, 7)]
+    lecture_options = ["All"] + [f"Lecture {i:02d}" for i in range(1, 11)]
     selected_lecture = st.selectbox(
         "📚 Select Lecture:",
         lecture_options,
@@ -239,9 +239,9 @@ if not st.session_state.quiz_started:
     # Welcome Screen
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("📚 Total Questions", "300")
+        st.metric("📚 Total Questions", "500")
     with col2:
-        st.metric("📖 Lectures", "6")
+        st.metric("📖 Lectures", "10")
     with col3:
         st.metric("✅ Passing Score", "60%")
     
