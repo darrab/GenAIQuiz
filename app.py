@@ -7,8 +7,20 @@ import json
 # ==============================================================================
 # QUESTION DATABASE (300 Questions - 50 per Lecture)
 # ==============================================================================
-with open('questions.json', 'r') as f:
-    QUESTIONS = json.load(f)
+
+try:
+    with open('questions.json', 'r', encoding='utf-8') as f:
+        QUESTIONS = json.load(f)
+    print(f"✅ Successfully loaded {len(QUESTIONS)} questions")
+except json.JSONDecodeError as e:
+    print(f"❌ JSON Error at line {e.lineno}, column {e.colno}: {e.msg}")
+    print(f"Check around character position: {e.pos}")
+    # Show the problematic section
+    with open('questions.json', 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+        if e.lineno <= len(lines):
+            print(f"Problematic line {e.lineno}: {lines[e.lineno-1][:100]}")
+    raise
 
 # ==============================================================================
 # STREAMLIT APP - ENHANCED VERSION
