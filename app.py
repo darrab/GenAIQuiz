@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import json
 
 # ==============================================================================
-# QUESTION DATABASE (300 Questions - 50 per Lecture)
+# QUESTION DATABASE (550 Questions - 50 per Lecture)
 # ==============================================================================
 
 try:
@@ -168,7 +168,7 @@ with st.sidebar:
     # Lecture Selection
     lecture_options = ["All"] + [f"Lecture {i:02d}" for i in range(1, 11)]
     selected_lecture = st.selectbox(
-        "📚 Select Lecture:",
+        "Select Lecture:",
         lecture_options,
         index=0
     )
@@ -199,15 +199,15 @@ with st.sidebar:
     st.markdown("---")
     
     # Action Buttons
-    if st.button("🚀 Start New Quiz", type="primary", use_container_width=True):
+    if st.button("Start New Quiz", type="primary", use_container_width=True):
         init_quiz(selected_lecture, st.session_state.time_limit, quiz_mode.lower())
         st.rerun()
     
-    if st.button("📊 View Summary", disabled=not st.session_state.quiz_started, use_container_width=True):
+    if st.button("View Summary", disabled=not st.session_state.quiz_started, use_container_width=True):
         st.session_state.show_result = True
         st.rerun()
     
-    if st.button("🏠 Reset Quiz", use_container_width=True):
+    if st.button("Reset Quiz", use_container_width=True):
         st.session_state.quiz_started = False
         st.session_state.show_result = False
         st.session_state.current_question = 0
@@ -232,33 +232,33 @@ with st.sidebar:
             st.write(f"• Question {q_num + 1}")
 
 # Main Content
-st.markdown('<p class="main-header">🎓 Deep Learning & Gen AI Quiz Master</p>', unsafe_allow_html=True)
+st.markdown('<p class="main-header">Deep Learning & Gen AI Quiz Master</p>', unsafe_allow_html=True)
 st.markdown("---")
 
 if not st.session_state.quiz_started:
     # Welcome Screen
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("📚 Total Questions", "500")
+        st.metric("Total Questions", "550")
     with col2:
-        st.metric("📖 Lectures", "10")
+        st.metric("Lectures", "11")
     with col3:
-        st.metric("✅ Passing Score", "60%")
+        st.metric("Passing Score", "60%")
     
     st.markdown("""
-    ### 📋 Quiz Features
+    ### Quiz Features
     
     | Feature | Description |
     |---------|-------------|
-    | ⏱️ **Timer** | Optional countdown timer (10-60 minutes) |
-    | 📊 **Question Counter** | Track progress (e.g., 15/50) |
-    | ⬅️➡️ **Navigation** | Move between questions freely |
-    | 🚩 **Flag Questions** | Mark questions for review |
-    | 📝 **Two Modes** | Practice (instant feedback) or Exam (results at end) |
-    | 📈 **Progress Bar** | Visual progress indicator |
-    | 📊 **Question Grid** | Jump to any question quickly |
-    | 💾 **Auto-save** | Answers saved automatically |
-    | 📤 **Export Results** | Download results as CSV |
+    | **Timer** | Optional countdown timer (10-60 minutes) |
+    | **Question Counter** | Track progress (e.g., 15/50) |
+    | **Navigation** | Move between questions freely |
+    | **Flag Questions** | Mark questions for review |
+    | **Two Modes** | Practice (instant feedback) or Exam (results at end) |
+    | **Progress Bar** | Visual progress indicator |
+    | **Question Grid** | Jump to any question quickly |
+    | **Auto-save** | Answers saved automatically |
+    | **Export Results** | Download results as CSV |
     
     ### 🎯 How to Use
     
@@ -288,12 +288,12 @@ else:
         with col1:
             st.markdown(f"**Quiz Mode:** {st.session_state.quiz_mode.title()}")
         with col2:
-            st.markdown(f'<p class="timer-box {timer_class}">⏱️ {format_time(int(time_left))}</p>', unsafe_allow_html=True)
+            st.markdown(f'<p class="timer-box {timer_class}"> {format_time(int(time_left))}</p>', unsafe_allow_html=True)
         with col3:
             st.markdown(f"**Lecture:** {st.session_state.selected_lecture}")
         
         if time_left <= 0:
-            st.error("⏰ Time's up! Submitting your answers...")
+            st.error("Time's up! Submitting your answers...")
             st.session_state.show_result = True
             st.rerun()
     else:
@@ -307,7 +307,7 @@ else:
     
     if st.session_state.show_result:
         # Results Page
-        st.markdown("## 📊 Quiz Results")
+        st.markdown("## Quiz Results")
         
         # Calculate score
         correct_count = 0
@@ -334,19 +334,19 @@ else:
         
         # Performance Message
         if percentage >= 80:
-            st.success("🎉 Excellent! You've mastered this material!")
+            st.success("Excellent! You've mastered this material!")
         elif percentage >= 60:
-            st.info("👍 Good job! Review incorrect topics to improve.")
+            st.info("Good job! Review incorrect topics to improve.")
         else:
-            st.warning("📚 Keep studying! Review the lectures and try again.")
+            st.warning("Keep studying! Review the lectures and try again.")
         
         # Time Taken
         if st.session_state.timer_enabled and st.session_state.start_time:
             time_taken = (datetime.now() - st.session_state.start_time).total_seconds()
-            st.info(f"⏱️ **Time Taken:** {format_time(int(time_taken))}")
+            st.info(f" **Time Taken:** {format_time(int(time_taken))}")
         
         # Detailed Results
-        with st.expander("📋 View Detailed Results", expanded=True):
+        with st.expander("View Detailed Results", expanded=True):
             for i, q in enumerate(questions):
                 answer_data = st.session_state.answers.get(i, {})
                 user_answer = answer_data.get('answer', 'Not answered')
@@ -368,7 +368,7 @@ else:
                     st.markdown("---")
         
         # Export Results
-        st.markdown("### 📤 Export Results")
+        st.markdown("### Export Results")
         
         # Create CSV data
         csv_data = "Question ID,Lecture,Question,Your Answer,Correct Answer,Explanation\n"
@@ -378,7 +378,7 @@ else:
             csv_data += f"{q['id']},{q['lec']},\"{q['q']}\",{user_answer},{q['ans']},\"{q['exp']}\"\n"
         
         st.download_button(
-            label="📥 Download Results as CSV",
+            label="Download Results as CSV",
             data=csv_data,
             file_name=f"quiz_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
             mime="text/csv",
@@ -388,12 +388,12 @@ else:
         # Action Buttons
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("🔄 Try Again", type="primary", use_container_width=True):
+            if st.button("Try Again", type="primary", use_container_width=True):
                 st.session_state.quiz_started = False
                 st.session_state.show_result = False
                 st.rerun()
         with col2:
-            if st.button("🏠 Back to Home", use_container_width=True):
+            if st.button("Back to Home", use_container_width=True):
                 st.session_state.quiz_started = False
                 st.session_state.show_result = False
                 st.rerun()
@@ -447,7 +447,7 @@ else:
         st.markdown("---")
         
         # Question Display
-        st.markdown(f"### 📝 Question {st.session_state.current_question + 1}")
+        st.markdown(f"### Question {st.session_state.current_question + 1}")
         st.markdown(f"**Lecture {q['lec']}**")
         st.markdown(f"**{q['q']}**")
         
@@ -467,7 +467,7 @@ else:
         
         selected_option = st.radio(
             "Select your answer:",
-            options,  # ✅ Use full options list
+            options,  # Use full options list
             index=current_index,
             key=f"q_{st.session_state.current_question}"
         )
@@ -554,6 +554,6 @@ st.markdown("---")
 st.markdown("""
 <div style='text-align: center; color: #666;'>
     <p>Built with ❤️ using Streamlit | Deep Learning & Gen AI Course</p>
-    <p>© 2026 Quiz Master | All 300 Questions from 6 Lectures</p>
+    <p>© 2026 Quiz Master | All 550 Questions from 11 Lectures</p>
 </div>
 """, unsafe_allow_html=True)
