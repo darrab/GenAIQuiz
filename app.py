@@ -166,7 +166,7 @@ with st.sidebar:
     st.markdown("---")
     
     # Lecture Selection
-    lecture_options = ["All"] + [f"Lecture {i:02d}" for i in range(1, 11)]
+    lecture_options = ["All"] + [f"Lecture {i:02d}" for i in range(1, 12)]
     selected_lecture = st.selectbox(
         "Select Lecture:",
         lecture_options,
